@@ -380,8 +380,16 @@
   </nav>
 
   <!-- ============================================================
-    🏠 HERO SECTION
+    🟢 STATUS BADGE
+    🔧 เปลี่ยนสถานะแค่บรรทัดเดียว: แก้ค่า STATUS ด้านล่าง
+       'available'   → 🟢 Available for Work
+       'freelance'   → 🟡 Open to Freelance
+       'unavailable' → 🔴 Not Available
   ============================================================ -->
+  <div class="status-badge" id="statusBadge">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-label" id="statusLabel"></span>
+  </div>
   <section class="hero">
 
     <div class="grid-lines"></div>
@@ -408,8 +416,6 @@
 
       <!-- 🔤 เปลี่ยนชื่อที่นี่ -->
       <h1 class="hero-name">Your Name</h1>
-
-      <div class="hero-divider"></div>
 
       <!-- 🔤 เปลี่ยน subtitle ที่นี่ -->
       <p class="hero-subtitle">3D Graphic Designer</p>
@@ -461,6 +467,23 @@
         ring.style.borderColor = 'rgba(201,169,110,0.5)';
       });
     });
+
+    // ── Status Badge ─────────────────────────────────────────────
+    // 🔧 เปลี่ยนสถานะที่นี่จุดเดียว:
+    //    'available'   → 🟢 Available for Work
+    //    'freelance'   → 🟡 Open to Freelance
+    //    'unavailable' → 🔴 Not Available
+    const STATUS = 'available';
+
+    const statusMap = {
+      available:   { label: 'Available for Work',  cls: 'available'   },
+      freelance:   { label: 'Open to Freelance',   cls: 'freelance'   },
+      unavailable: { label: 'Not Available',        cls: 'unavailable' },
+    };
+
+    const s = statusMap[STATUS] || statusMap['unavailable'];
+    document.getElementById('statusDot').classList.add(s.cls);
+    document.getElementById('statusLabel').textContent = s.label;
 
     // ── Navbar scroll effect ─────────────────────────────────────
     const navbar = document.getElementById('navbar');
