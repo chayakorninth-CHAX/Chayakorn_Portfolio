@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- ============================================================
+    🔤 FONT
+    - "Cormorant Garamond" = ชื่อหลัก (หรูหรา คลาสสิก)
+    - "Montserrat" = เมนู + subtitle (อ่านง่าย ทันสมัย)
+    เปลี่ยนได้ที่ Google Fonts URL ด้านล่าง และ CSS font-family
+  ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <title>Portfolio</title><!-- 🔤 เปลี่ยนชื่อแท็บที่นี่ -->
+
+  <style>
+    /* ============================================================
+      🎨 COLOR VARIABLES — แก้สีทั้งเว็บได้ที่นี่จุดเดียว
+    ============================================================ */
+    :root {
+      --bg:          #080808;       /* พื้นหลังหลัก */
+      --bg-mid:      #0e0e0e;       /* พื้นหลังชั้นกลาง */
+      --white:       #f0ede8;       /* ขาวอมอุ่น สำหรับชื่อ */
+      --grey-light:  #b0a99f;       /* เทาอ่อน subtitle */
+      --grey-mid:    #5c5752;       /* เทากลาง เส้น/เมนู */
+      --gold:        #c9a96e;       /* ทองแดงจางๆ สำหรับ accent */
+      --gold-dim:    rgba(201,169,110,0.15);
+    }
+
+    /* ============================================================
+      🔄 RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none; /* custom cursor */
+    }
+
+    /* ============================================================
+      🖱️ CUSTOM CURSOR
+      ลบ section นี้ออกถ้าไม่ต้องการ custom cursor
+    ============================================================ */
+    .cursor-dot {
+      position: fixed;
+      width: 6px; height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 32px; height: 32px;
+      border: 1px solid rgba(201,169,110,0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.12s ease;
+    }
+
+    /* ============================================================
+      🔝 NAVBAR
+      - เมนูอยู่ด้านบน ไม่มีกรอบ มีแค่ตัวอักษร
+      - เพิ่ม/ลบ <a> ใน HTML เพื่อเพิ่มหน้า
+    ============================================================ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      /* พื้นหลัง navbar จางขึ้นเมื่อเลื่อน — ดูใน JS */
+      transition: padding 0.4s ease, background 0.4s ease;
+    }
+
+    nav.scrolled {
+      padding: 1.2rem 4rem;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    /* โลโก้ซ้าย — เปลี่ยนได้ตามชอบ */
+    .nav-logo {
+      font-family: 'Exo 2', serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.25em;
+      color: var(--grey-light);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    /* เมนูขวา */
+    .nav-links {
+      display: flex;
+      gap: 3rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--grey-mid);
+      text-decoration: none;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+
+    /* เส้นขีดใต้ hover — เปลี่ยนสีได้ที่ background ด้านล่าง */
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ============================================================
+      🏠 HERO SECTION — หน้าแรก
+    ============================================================ */
+    .hero {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ── พื้นหลัง Grain + Vignette ───────────────────────────── */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 50%,
+          rgba(201,169,110,0.04) 0%,
+          transparent 70%),
+        radial-gradient(ellipse 100% 100% at 50% 50%,
+          transparent 50%,
+          rgba(0,0,0,0.7) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* grain texture */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.4;
+    }
+
+    /* ── เส้น Grid จางๆ ────────────────────────────────────────
+       ลบ .grid-lines ออกถ้าไม่ต้องการ
+    ── */
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 80px 80px;
+      z-index: 0;
+    }
+
+    /* ── Hero Content ─────────────────────────────────────────── */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* ชื่อ (บรรทัดแรก) */
+    /* 🔤 เปลี่ยนชื่อใน HTML ด้านล่าง หา <h1 class="hero-name"> */
+    .hero-name {
+      font-family: 'Exo 2', serif;
+      font-weight: 400;                      /* เพิ่มน้ำหนัก font — 300=บาง 400=ปกติ 600=หนา */
+      font-size: clamp(3.5rem, 9vw, 8rem);   /* ปรับขนาดตัวอักษรได้ที่นี่ */
+      letter-spacing: 0.12em;
+      line-height: 1;
+      color: var(--white);
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 1.2s cubic-bezier(0.16,1,0.3,1) 0.3s forwards;
+    }
+
+    /* คำว่า 3D Graphic Designer */
+    /* 🔤 เปลี่ยน subtitle ใน HTML หา <p class="hero-subtitle"> */
+    .hero-subtitle {
+      font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--grey-light);
+      margin-top: 0.9rem;   /* ระยะห่างจากชื่อ — ปรับได้ที่นี่ */
+      opacity: 0;
+      animation: fadeIn 1s ease 0.9s forwards;
+    }
+
+    /* ============================================================
+      🟢 STATUS BADGE — กรอบล้อมรอบ ซ่อนข้อความ เปิดเมื่อ hover
+      
+      🔧 วิธีเปลี่ยนสถานะ: แก้แค่บรรทัดเดียวใน JS
+         หา "const STATUS = " แล้วเปลี่ยนค่าเป็น:
+           'available'    → 🟢 สีเขียว  "Available for Work"
+           'freelance'    → 🟡 สีเหลือง "Open to Freelance"
+           'unavailable'  → 🔴 สีแดง    "Not Available"
+    ============================================================ */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-end;
+      margin-bottom: 0.75rem;
+
+      /* กรอบ */
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 0.45rem 0.65rem;
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+
+      /* ความกว้างเริ่มต้น = แค่พอใส่จุด */
+      width: 28px;
+      overflow: hidden;
+      white-space: nowrap;
+
+      /* transition ขยาย */
+      transition:
+        width 0.45s cubic-bezier(0.16,1,0.3,1),
+        border-color 0.3s ease,
+        background 0.3s ease,
+        padding 0.45s ease;
+
+      cursor: default;
+      opacity: 0;
+      animation: fadeIn 1s ease 1.4s forwards;
+    }
+
+    .status-badge:hover {
+      width: 180px;              /* ความกว้างเมื่อ hover — ปรับถ้าข้อความยาวเกิน */
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.06);
+      padding: 0.45rem 0.9rem;
+    }
+
+    .status-dot {
+      position: relative;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* เรืองแสง pulse */
+    .status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    /* สีแต่ละสถานะ */
+    .status-dot.available   { background: #4ade80; }
+    .status-dot.available::after  { background: rgba(74,222,128,0.35); }
+
+    .status-dot.freelance   { background: #fbbf24; }
+    .status-dot.freelance::after  { background: rgba(251,191,36,0.35); }
+
+    .status-dot.unavailable { background: #f87171; }
+    .status-dot.unavailable::after { background: rgba(248,113,113,0.35); }
+
+    .status-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--grey-light);
+      margin-left: 0.55rem;
+
+      /* ซ่อนอยู่ก่อน fade in เมื่อ hover */
+      opacity: 0;
+      transition: opacity 0.25s ease 0.15s;
+    }
+
+    .status-badge:hover .status-label {
+      opacity: 1;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1);   opacity: 0.6; }
+      50%       { transform: scale(1.8); opacity: 0;   }
+    }
+
+    /* ── Scroll Indicator ─────────────────────────────────────── 
+       ลบ .scroll-hint ออกถ้าไม่ต้องการ
+    ── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeIn 1s ease 2s forwards;
+    }
+
+    .scroll-hint span {
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: var(--grey-mid);
+      text-transform: uppercase;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--grey-mid), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    /* ============================================================
+      🖼️ REEL / SHOWREEL SECTION (optional)
+      ลบส่วนนี้ออกได้ถ้าไม่ต้องการ
+      หรือใส่รูป Hero Image แทนชื่อ:
+        1. วาง <img> ใน .hero ก่อน .hero-content
+        2. position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.15;
+    ============================================================ */
+
+    /* ============================================================
+      🎬 WORK SECTION — ตัวอย่างงาน Grid 3x3
+    ============================================================ */
+    .work-section {
+      padding: 8rem 4rem 6rem;
+      background: var(--bg);
+    }
+
+    /* หัวข้อ Section */
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+      display: block;
+    }
+
+    .section-title {
+      font-family: 'Exo 2', serif;
+      font-weight: 400;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--white);
+      letter-spacing: 0.08em;
+    }
+
+    /* Grid 3x3 */
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);  /* 3 คอลัมน์ — เปลี่ยนเป็น repeat(2,1fr) ถ้าอยากได้ 2 คอลัมน์ */
+      gap: 1.5px;                               /* ระยะห่างระหว่าง cell — ปรับได้ */
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* แต่ละ cell */
+    .work-item {
+      position: relative;
+      aspect-ratio: 16 / 9;   /* สัดส่วนวิดีโอ — เปลี่ยนเป็น 1/1 ถ้าอยากได้สี่เหลี่ยมจัตุรัส */
+      overflow: hidden;
+      background: #111;
+      cursor: none;
+    }
+
+    /* วิดีโอในแต่ละ cell */
+    .work-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    /* Overlay จางๆ ทับวิดีโอ */
+    .work-item-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      transition: opacity 0.4s ease;
+    }
+
+    /* ชื่องานที่ซ่อนอยู่ใน overlay */
+    .work-item-info {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 2;
+      padding: 1rem;
+    }
+
+    .work-item-title {
+      font-family: 'Exo 2', serif;
+      font-size: clamp(1rem, 1.8vw, 1.4rem);
+      font-weight: 400;
+      color: var(--white);
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .work-item-tag {
+      font-size: 0.55rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* hover effects */
+    .work-item:hover video {
+      transform: scale(1.04);
+    }
+
+    .work-item:hover .work-item-overlay {
+      opacity: 0;
+    }
+
+    .work-item:hover .work-item-info {
+      opacity: 1;
+    }
+
+    /* Fade-in เมื่อ scroll มาถึง */
+    .work-item {
+      opacity: 0;
+      transform: translateY(20px);
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s ease,
+        outline 0.3s ease;
+    }
+
+    .work-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .work-grid { grid-template-columns: repeat(2, 1fr); }
+      .work-section { padding: 6rem 2rem 4rem; }
+    }
+
+    @media (max-width: 540px) {
+      .work-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================================
+      🎞️ ANIMATIONS
+    ============================================================ */
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 0.8; transform: scaleY(1.1); }
+    }
+
+    /* ============================================================
+      📱 RESPONSIVE — Mobile
+    ============================================================ */
+    @media (max-width: 768px) {
+      nav { padding: 1.5rem 2rem; }
+      nav.scrolled { padding: 1rem 2rem; }
+
+      .nav-links { gap: 1.5rem; }
+      .nav-links a { font-size: 0.6rem; letter-spacing: 0.2em; }
+    }
+
+    @media (max-width: 480px) {
+      .nav-logo { display: none; } /* ซ่อน logo บนจอเล็กมาก */
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Custom Cursor (ลบได้ถ้าไม่ต้องการ) -->
+  <div class="cursor-dot"  id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- ============================================================
+    🔝 NAVBAR
+    เพิ่มหน้าใหม่: คัดลอก <li><a href="...">...</a></li> แล้วแก้ชื่อ
+    href="about.html" หรือ href="#section-id" ก็ได้
+  ============================================================ -->
+  <nav id="navbar">
+    <!-- โลโก้หรือชื่อย่อซ้าย — เปลี่ยนได้เลย -->
+    <a href="#" class="nav-logo">Portfolio</a>
+
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>          <!-- หน้าแรก -->
+      <li><a href="about.html">About</a></li>         <!-- เกี่ยวกับฉัน -->
+      <li><a href="work.html">Work</a></li>           <!-- ผลงาน -->
+      <li><a href="contact.html">Contact</a></li>     <!-- ติดต่อ -->
+      <!-- เพิ่มเมนูใหม่ที่นี่ -->
+    </ul>
+  </nav>
+
+  <!-- ============================================================
+    🏠 HERO SECTION
+  ============================================================ -->
+  <section class="hero">
+
+    <div class="grid-lines"></div>
+
+    <!-- ── 🖼️ ใส่รูปพื้นหลังได้ที่นี่ ──────────────────────────
+      วิธีใส่รูป Background:
+      1. วางรูป (เช่น hero-bg.jpg) ไว้ใน folder เดียวกับ index.html
+      2. เอา comment ออกจาก <img> ด้านล่าง แล้วแก้ชื่อไฟล์
+
+    <img
+      src="hero-bg.jpg"
+      alt=""
+      style="
+        position:absolute; inset:0;
+        width:100%; height:100%;
+        object-fit:cover;
+        opacity:0.12;
+        z-index:0;
+      "
+    />
+    ──────────────────────────────────────────────────────────── -->
+
+    <div class="hero-content">
+
+      <!-- 🟢 STATUS BADGE — อยู่เหนือชื่อ ชิดขวา
+           🔧 เปลี่ยนสถานะใน JS หา "const STATUS =" -->
+      <div class="status-badge" id="statusBadge">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-label" id="statusLabel"></span>
+      </div>
+
+      <!-- 🔤 เปลี่ยนชื่อที่นี่ -->
+      <h1 class="hero-name">Chayakorn Inthararit</h1>
+
+      <!-- 🔤 เปลี่ยน subtitle ที่นี่ -->
+      <p class="hero-subtitle">3D Graphic Designer</p>
+
+    </div>
+
+    <!-- Scroll Indicator (ลบได้) -->
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
+    📄 หน้าถัดไป — เพิ่ม section ใหม่ที่นี่ เช่น
+    <section id="work"> ... </section>
+    <section id="about"> ... </section>
+  ============================================================ -->
+
+
+  <!-- ============================================================
+    🎬 WORK SECTION — ตัวอย่างงาน Grid 3x3
+    
+    📌 วิธีเปลี่ยนวิดีโอ:
+       1. วางไฟล์วิดีโอ (mp4 แนะนำ) ใน folder เดียวกับ index.html
+       2. แก้ src="" ใน <source> ของแต่ละ work-item
+       3. แก้ชื่องาน (.work-item-title) และ tag (.work-item-tag) ตามต้องการ
+       4. เพิ่ม/ลบ .work-item ได้เลย (ปัจจุบันมี 9 ช่อง)
+       
+    📌 รองรับไฟล์: .mp4 (แนะนำ), .webm, .mov
+    📌 ขนาดวิดีโอแนะนำ: 1920x1080 หรือ 1280x720 เพื่อประหยัด size
+  ============================================================ -->
+  <section class="work-section" id="work">
+
+    <div class="section-header">
+      <span class="section-label">Selected Work</span>
+      <h2 class="section-title">Projects</h2>
+    </div>
+
+    <div class="work-grid">
+
+      <!-- ── ITEM 1 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-1.mp4"
+           🔤 เปลี่ยนชื่องาน: แก้ข้อความใน .work-item-title
+           🏷️ เปลี่ยน tag: แก้ข้อความใน .work-item-tag
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-01.mp4" type="video/mp4">
+          <!-- ถ้าต้องการ fallback: <source src="work-01.webm" type="video/webm"> -->
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 01</h3>
+          <span class="work-item-tag">3D Render · Animation</span>
+        </div>
+      </div>
+
+      <!-- ── ITEM 2 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-2.mp4"
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-02.mp4" type="video/mp4">
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 02</h3>
+          <span class="work-item-tag">Motion Graphics</span>
+        </div>
+      </div>
+
+      <!-- ── ITEM 3 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-3.mp4"
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-03.mp4" type="video/mp4">
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 03</h3>
+          <span class="work-item-tag">Product Visualization</span>
+        </div>
+      </div>
+
+      <!-- ── ITEM 4 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-4.mp4"
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-04.mp4" type="video/mp4">
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 04</h3>
+          <span class="work-item-tag">3D Render · Lighting</span>
+        </div>
+      </div>
+
+      <!-- ── ITEM 5 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-5.mp4"
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-05.mp4" type="video/mp4">
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 05</h3>
+          <span class="work-item-tag">Character Design</span>
+        </div>
+      </div>
+
+      <!-- ── ITEM 6 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-6.mp4"
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-06.mp4" type="video/mp4">
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 06</h3>
+          <span class="work-item-tag">Environment Design</span>
+        </div>
+      </div>
+
+      <!-- ── ITEM 7 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-7.mp4"
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-07.mp4" type="video/mp4">
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 07</h3>
+          <span class="work-item-tag">Architectural Viz</span>
+        </div>
+      </div>
+
+      <!-- ── ITEM 8 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-8.mp4"
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-08.mp4" type="video/mp4">
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 08</h3>
+          <span class="work-item-tag">Abstract Art</span>
+        </div>
+      </div>
+
+      <!-- ── ITEM 9 ──────────────────────────────────────────────
+           🎥 เปลี่ยนวิดีโอ: แก้ src="your-video-9.mp4"
+      ─────────────────────────────────────────────────────────── -->
+      <div class="work-item">
+        <video autoplay muted loop playsinline preload="metadata">
+          <source src="work-09.mp4" type="video/mp4">
+        </video>
+        <div class="work-item-overlay"></div>
+        <div class="work-item-info">
+          <h3 class="work-item-title">Project Title 09</h3>
+          <span class="work-item-tag">VFX · Simulation</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+    ⚙️ JAVASCRIPT
+  ============================================================ -->
+  <script>
+    // ── Custom Cursor ────────────────────────────────────────────
+    // ลบ block นี้ออกถ้าลบ cursor ออก
+    const dot  = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+
+    document.addEventListener('mousemove', e => {
+      dot.style.left  = e.clientX + 'px';
+      dot.style.top   = e.clientY + 'px';
+      // ring ตามช้ากว่าเล็กน้อย (CSS transition จัดการ)
+      ring.style.left = e.clientX + 'px';
+      ring.style.top  = e.clientY + 'px';
+    });
+
+    // cursor ใหญ่ขึ้นเมื่อ hover link
+    document.querySelectorAll('a').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        ring.style.width  = '48px';
+        ring.style.height = '48px';
+        ring.style.borderColor = 'rgba(201,169,110,0.8)';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.style.width  = '32px';
+        ring.style.height = '32px';
+        ring.style.borderColor = 'rgba(201,169,110,0.5)';
+      });
+    });
+
+    // ── Status Badge ─────────────────────────────────────────────
+    // 🔧 เปลี่ยนสถานะที่นี่จุดเดียว:
+    //    'available'   → 🟢 Available for Work
+    //    'freelance'   → 🟡 Open to Freelance
+    //    'unavailable' → 🔴 Not Available
+    const STATUS = 'available';
+
+    const statusMap = {
+      available:   { label: 'Available for Work',  cls: 'available'   },
+      freelance:   { label: 'Open to Freelance',   cls: 'freelance'   },
+      unavailable: { label: 'Not Available',        cls: 'unavailable' },
+    };
+
+    const s = statusMap[STATUS] || statusMap['unavailable'];
+    document.getElementById('statusDot').classList.add(s.cls);
+    document.getElementById('statusLabel').textContent = s.label;
+
+    // ── Navbar scroll effect ─────────────────────────────────────
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ── Work Items — Fade-in on scroll ───────────────────────────
+    const workItems = document.querySelectorAll('.work-item');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          // delay ทยอยขึ้นทีละ item
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, (Array.from(workItems).indexOf(entry.target) % 3) * 100);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    workItems.forEach(item => observer.observe(item));
+  </script>
+
+</body>
+</html>
